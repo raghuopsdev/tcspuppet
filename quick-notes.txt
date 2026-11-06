@@ -1,0 +1,57 @@
+//From Cloud Shell
+ssh azureuser@<public-ip> - puppet agent
+ssh azureuser@<public-ip> - puppet master
+
+//az vm list-ip-addresses --resource-group rg-puppet-training -o table
+
+VirtualMachine    PublicIPAddresses    PrivateIPAddresses
+----------------  -------------------  --------------------
+puppet-agent-01   40.87.21.28          10.0.0.5
+puppet-server     13.68.146.125        10.0.0.4
+
+chmod 400 /home/raghuveer_1793627750288/.ssh/id_rsa
+ssh -i azureuser@<publicIPAddress>
+
+// To open the 8140 ports
+//az vm open-port --port 8140 --resource-group rg-puppet-training --name puppet-server --priority 1001
+
+//To check what all the ports listening
+az network nsg rule list --resource-group rg-puppet-training --nsg-name puppet-serverNSG --output table
+
+// to check if puppet server is listening or not
+nc -zv puppet-server 8140
+
+//Export path
+//Set the export path
+echo 'export PATH=$PATH:/opt/puppetlabs/bin' >> ~/.bashrc
+source ~/.bashrc
+
+//To Change the background of the colour to white and FONT to white
+printf '\033]10;#000000\033\033]11;#FFFFFF\033\\'
+//To Reverse it
+printf '\033]11;#000000\033\033]10;#FFFFFF\033\\'
+
+//To clean the certificates
+master //puppetserver ca clean --certname puppet-agent-01
+       //sudo grep -i "puppet-agent-01" /etc/puppetlabs/puppetserver/ca/inventory.txt
+	//sudo rm -rf /etc/puppetlabs/puppetserver/ca/signed/puppet-agent-01.pem
+	//sudo rm -rf /etc/puppetlabs/puppetserver/ca/requests/puppet-agent-01.pem
+	//sudo systemctl restart puppetserver
+
+agent //puppet ssl clean
+      //rm -rf /etc/puppetlabs/puppet/ssl
+
+sign //puppetserver ca sign --certname puppet-agent-01
+
+//To get Public IP
+curl -s ifconfig.me
+
+//In Ubuntu to check if anything running on Port 80
+sudo ss -tulpn | grep :80
+
+//To Remove and stop Nginx
+apt-get purge --auto-remove nginx nginx-common nginx-core
+apt-get remove nginx
+systemctl stop nginx
+ echo "Tampered data" > /var/www/html/index.html
+
