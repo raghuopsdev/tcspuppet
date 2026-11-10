@@ -1,0 +1,68 @@
+10th November class notes
+
+
+
+my my_control_repo/
+   28  vi environment.conf
+   29  cat environment.conf 
+   30  vi Puppetfile
+   31  cat Puppetfile 
+   32  ll
+   33  cat Puppetfile 
+   34  sudo r10k puppetfile install --verbose --puppetfile ./Puppetfile --moduledir ./modules
+   35  r10k
+   36  pwd
+   37  cd my_control_repo/
+   38  gem install r10k
+   39  git clone https://github.com/puppetlabs/r10k
+   40  cd r10k/
+   41  ll
+   42  bundle install
+   43  apt install ruby-bundler
+   44  bundle install
+   45  bundle exec r10k help
+   46  ll
+   47  cat README.mkd 
+   48  :q!
+   49  cler
+   50  cd ..
+   51  gem install r10k
+   52  sudo r10k puppetfile install --verbose --puppetfile ./Puppetfile --moduledir ./modules
+   53  mv ../Puppetfile .
+   54  cd ..
+   55  ll
+   56  mv environment.conf my_control_repo/
+   57  cd my_control_repo/
+   58  ls -lrth
+   59  sudo r10k puppetfile install --verbose --puppetfile ./Puppetfile --moduledir ./modules
+   60  ls -lrth modules/
+   61  ll
+   62  cat environment.conf 
+   63  cat Puppetfile 
+   64  cat environment.conf 
+   65  history
+
+66  cd manifests/
+   67  ll
+   68  vi site.pp
+   69  cat site.pp 
+   70  puppet apply manifests/site.pp --noop
+   71  puppet apply site.pp --noop
+   72  git status
+   73  git add .
+   74  git commit -m "feat: initial stable baseline configuration"
+   75  git status
+   76  ls -lrth
+   77  git branch
+   78  git checkout -b feature/bad-update
+   79  git branch
+   80  vi site.pp 
+   81  git add site.pp 
+   82  git commit -m "fix: introduce faulty file resource state"
+   83  puppet apply site.pp --noop
+   84  git log --oneline -n 3
+   85  git revert --no-edit HEAD
+   86  git log --oneline -n 3
+   87  puppet apply site.pp --noop
+   88  cat site.pp 
+   89  history
