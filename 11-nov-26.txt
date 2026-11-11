@@ -1,0 +1,164 @@
+JENKINS
+
+root@jenkins:/home/azureuser# history
+    1  clear
+    2  apt update && sudo apt install fontconfig openjdk-17-jre -y
+    3  wget -O /usr/share/keyrings/jenkins-keyring.asc
+    4  sudo wget -O /usr/share/keyrings/jenkins-keyring.asc
+    5  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    6  echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]
+    7  https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list >
+    8  /dev/null
+    9  sudo apt update && sudo apt install jenkins -y
+   10  sudo systemctl enable --now jenkins
+   11  Retrieve the initial administrator password using: sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+   12  sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+   13  echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+   14  sudo apt update && sudo apt install jenkins -y
+   15  apt list | grep jenkins
+   16  sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc   https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+   17  echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]"   https://pkg.jenkins.io/debian-stable binary/ | sudo tee   /etc/apt/sources.list.d/jenkins.list > /dev/null
+   18  sudo apt update
+   19  sudo apt install jenkins
+   20  which jenkins
+   21  systemctl enable --now jenkins
+   22  service status jenkins
+   23  systemctl 
+   24  systemctl status jenkins
+   25  sudo journalctl -u jenkins.service -n 100 --no-pager
+   26  java --version
+   27  apt list | grep jdk
+   28  apt update openjdk-21-jdk
+   29  apt-get install openjdk-21-jdk
+   30  java --version
+   31  systemctl status jenkins
+   32  systemctl start jenkins
+   33  clear
+   34  ps -ef | grep jenkins
+   35  nc -zv jenkins 8080
+   36  curl -s ifconfig.me
+   37  cat /var/lib/jenkins/secrets/initialAdminPassword
+   38  clear
+   39  sudo tail -n 100 /var/log/jenkins/jenkins.log
+   40  ll /var/log/jenkins/
+   41  ss -tuln | grep 8080
+   42  java --version
+   43  systemctl daemon-reload
+   44  systemctl reset-failed jenkins.service
+   45  ll /var/lib/jenkins/workspace/Test
+   46  ll /var/lib/jenkins/workspace/
+   47  cler
+   48  clear
+   49  su - jenkins -s /bin/bash 
+   50  exit
+   51  cler
+   52  clear
+   53  su - jenkins -s /bin/bash 
+   54  exit
+   55  clear
+   56  https://github.com/raghuopsdev/myhelloworld.git
+   57  pwd
+   58  apt-get install git
+   59  clear
+   60  cd /tmp/
+   61  git clone https://github.com/raghuopsdev/myhelloworld.git
+   62  ll
+   63  ls -lrth
+   64  cd myhelloworld/
+   65  ll
+   66  mvn --version
+   67  apt update
+   68  apt install maven -y
+   69  ls -lrth
+   70  ls -la
+   71  cd /home/
+   72  ll
+   73  ls
+   74  cd azureuser/
+   75  ls -la
+   76  cd .ssh/
+   77  ls
+   78  ls -lrth
+   79  cd ..
+   80  clear
+   81  clear
+   82  cd ..
+   83  ls -lrth
+   84  cd azureuser/
+   85  su - jenkins -s /bin/bash 
+   86  cd /var/lib/jenkins/.ssh/
+   87  cat id_ed25519
+   88  clear
+   89  su jenkins
+   90  cd /var/lib/jenkins/.ssh/
+   91  cat id_ed25519
+   92  clear
+   93  su jenkins
+   94  vi /etc/hosts
+   95  su jenkins
+
+
+PUPPET SERVER / AGENT
+=========================
+
+azureuser@puppet-agent-01:~$ sudo su
+root@puppet-agent-01:/home/azureuser# history
+    1  cd .ssh
+    2  ls -lrth
+    3  vi authorized_keys
+    4  ls -lrth
+    5  cd ..
+    6  ls -lrth
+    7  ls -la
+    8  chown -R deploy-user:deploy-user .ssh
+    9  ls -la
+   10  cd .ssh
+   11  ls -lrth
+   12  cd ..
+   13  chmod 600 /home/deploy-user/.ssh/authorized_keys
+   14  ls -lrth .ssh/authorized_keys 
+   15  wget https://apt.puppet.com/puppet8-release-jammy.deb
+   16  sudo dpkg -i puppet8-release-jammy.deb
+   17  sudo apt update
+   18  sudo apt install puppetserver -y
+   19  sudo /opt/puppetlabs/puppet/bin/gem install r10k
+   20  sudo ln -s /opt/puppetlabs/puppet/bin/r10k /usr/local/bin/r10k
+   21  sudo mkdir -p /etc/puppetlabs/code/environments/production/manifests
+   22  sudo tee /etc/puppetlabs/code/environments/production/manifests/site.pp << 'EOF'
+   23  node default {
+   24    notify { 'Hello from Puppet production environment!': }
+   25  }
+   26  EOF
+   27  sudo tee /etc/r10k.yaml << 'EOF'
+   28  ---
+   29  :cachedir: '/opt/puppetlabs/server/data/r10k/cache'
+   30  :sources:
+   31    :my-control-repo:
+   32      :remote: 'git@github.com:<your-github-username>/puppet-control-repo.git'
+   33      :prefix: false
+   34  EOF
+   35  vi /etc/r10k.yaml 
+   36  clear
+   37  which puppet
+   38  clear
+   39  puppet --version
+   40  cd /opt/puppetlabs/
+   41  ll
+   42  cd puppet/
+   43  ll
+   44  clear
+   45  ll /etc/puppetlabs/code/environments/production/manifests/site.pp
+   46  cat /etc/puppetlabs/code/environments/production/manifests/site.pp
+   47  mkdir -p /etc/puppetlabs/r10k
+   48  cp /etc/r10k.yaml /etc/puppetlabs/r10k/
+   49  r10k deploy environment production -p --verbose
+   50  clear
+   51  useradd -m -s /bin/bash deploy-user 
+   52  id deploy-user
+   53  passwd deploy-user 
+   54  echo "deploy-user ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/deploy-user 
+   55  mkdir -p /home/deploy-user/.ssh 
+   56  chmod 700 /home/deploy-user/.ssh
+   57  su deploy-user
+   58  history
+
