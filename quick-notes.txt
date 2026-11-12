@@ -89,3 +89,36 @@ sudo docker run -d \
 sudo docker logs -f puppetserver
 
 curl -k https://localhost:8140/status/v1/simple
+
+Docker - Puppet Agent
+======================
+
+sudo docker network create puppet-net
+docker network ls // To confirm that puppet-net is listed.
+
+sudo docker run -d \
+  --name puppetserver \
+  --net puppet-net \
+  --hostname puppetserver.local \
+  -p 8140:8140 \
+  puppet/puppetserver:latest
+
+docker logs -f puppetserver
+// And wait until you see the message: Puppet Server has successfully started and is now ready to handle requests
+
+sudo docker run -d \
+  --name puppet-agent \
+  --net puppet-net \
+  --hostname agent.local \
+  -e PUPPET_SERVER=puppetserver.local \
+  puppet/puppet-agent:latest
+
+
+Sign the certificate
+=====================
+sudo docker exec -it puppetserver puppetserver ca list
+sudo docker exec -it puppetserver puppetserver ca sign --all
+puppetserver ca list
+//should show no pending requests
+
+sudo docker exec -it puppet-agent puppet agent -t --server puppetserver.local
