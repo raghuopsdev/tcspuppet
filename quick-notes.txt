@@ -69,3 +69,23 @@ sudo find / -name "puppetserver" -type f 2>/dev/null
 wget https://apt.puppet.com/puppet8-release-jammy.deb
 sudo dpkg -i puppet8-release-jammy.deb
 sudo apt-get update
+
+
+Docker install - puppet master
+
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo systemctl enable --now docker
+
+sudo mkdir -p /opt/puppetlabs/server/data /etc/puppetlabs/puppet /etc/puppetlabs/puppetserver
+
+sudo docker run -d \
+  --name puppetserver \
+  -p 8140:8140 \
+  --hostname puppet.example.com \
+  puppet/puppetserver:latest
+
+
+sudo docker logs -f puppetserver
+
+curl -k https://localhost:8140/status/v1/simple
