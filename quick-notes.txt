@@ -110,8 +110,9 @@ sudo docker run -d \
   --name puppet-agent \
   --net puppet-net \
   --hostname agent.local \
-  -e PUPPET_SERVER=puppetserver.local \
-  puppet/puppet-agent:latest
+  -e PUPPET_SERVER=puppet \
+  puppet/puppet-agent:latest \
+  puppet agent --verbose --onetime --no-daemonize --server puppet
 
 
 Sign the certificate
