@@ -64,3 +64,8 @@ sudo rm -rf /etc/puppetlabs /opt/puppetlabs /var/opt/puppetlabs /var/log/puppetl
 sudo apt-get autoremove --purge -y
 
 sudo find / -name "puppetserver" -type f 2>/dev/null
+
+
+wget https://apt.puppet.com/puppet8-release-jammy.deb
+sudo dpkg -i puppet8-release-jammy.deb
+sudo apt-get update
