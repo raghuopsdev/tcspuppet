@@ -62,3 +62,5 @@ sudo /opt/puppetlabs/bin/puppet-enterprise-uninstaller -d -p -y
 sudo apt-get purge -y "puppet*" "pe-*"
 sudo rm -rf /etc/puppetlabs /opt/puppetlabs /var/opt/puppetlabs /var/log/puppetlabs /root/.puppetlabs /var/cache/puppetlabs
 sudo apt-get autoremove --purge -y
+
+sudo find / -name "puppetserver" -type f 2>/dev/null
