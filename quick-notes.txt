@@ -147,7 +147,9 @@ RUN apt-get update && apt-get install -y \
     puppet-agent \
     && rm -rf /var/lib/apt/lists/*
 
+
 ENV PATH="/opt/puppetlabs/bin:/opt/puppetlabs/server/bin:$PATH"
 
 CMD ["puppet", "agent", "--verbose", "--onetime", "--no-daemonize", "--server", "puppet"]
 EOF
+https://hub.docker.com/r/puppet/puppet-agent
