@@ -57,3 +57,8 @@ systemctl stop nginx
 
 sudo systemctl disable puppetserver pe-postgresql pxp-agent puppet 2>/dev/null || true
 sudo systemctl disable puppetserver pe-postgresql pxp-agent puppet 2>/dev/null || true
+
+sudo /opt/puppetlabs/bin/puppet-enterprise-uninstaller -d -p -y
+sudo apt-get purge -y "puppet*" "pe-*"
+sudo rm -rf /etc/puppetlabs /opt/puppetlabs /var/opt/puppetlabs /var/log/puppetlabs /root/.puppetlabs /var/cache/puppetlabs
+sudo apt-get autoremove --purge -y
