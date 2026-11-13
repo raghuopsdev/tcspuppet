@@ -1,19 +1,15 @@
 Here is a comprehensive, step-by-step lab guide designed for learners to understand how to transition from a standalone Puppet **manifest (`site.pp`)** to a modular, reusable **Puppet Module** using the professional Profile pattern.
-
 This use case sets up a multi-tier web application stack on Ubuntu: **Apache2** acting as a reverse proxy, **OpenJDK 17**, **Apache Tomcat** running a sample `.war` application, and **PHP** processing web requests.
 
 ---
 
 # Part 1: The Monolithic Puppet Manifest (`site.pp`)
 
-*For beginners, writing everything in a single `site.pp` manifest is the best way to understand resource declarations, ordering, and service dependencies.*
-
 Create or update your manifest file on your Puppet target server at `/etc/puppetlabs/code/environments/production/manifests/site.pp`:
 
-1. **Write the Monolithic site.pp Manifest:**
+1. Write the Monolithic site.pp Manifest:
 Add the following resource declarations to define packages, configuration files, and services in logical order:
-
-```puppet
+==================================================================
 node default {
   # 1. Update package list & install base utilities
   exec { 'apt-update':
@@ -81,18 +77,15 @@ node default {
   }
 }
 
-```
+==================================================================
 
-*Verification:* Run `sudo puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp` to check syntax correctness.
+Verification:* Run `sudo puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp` to check syntax correctness.
 
 
-2. **Apply the Manifest Locally:**
+2. Apply the Manifest Locally:
 Test your manifest by applying it directly on the server:
 
-```bash
-sudo puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
-
-```
+sudo puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp --noop
 
 *Verification:* Run `curl http://localhost` and `sudo systemctl status apache2 tomcat9` to confirm both services are active.
 
