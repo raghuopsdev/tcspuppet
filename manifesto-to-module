@@ -25,7 +25,7 @@ node default {
   # 3. Enable Apache Proxy Modules for Reverse Proxy
   exec { 'enable-proxy-modules':
     command => '/usr/sbin/a2enmod proxy proxy_http headers',
-    creates => /etc/apache2/mods-enabled/proxy.load,
+    creates => '/etc/apache2/mods-enabled/proxy.load',
     require => Package['apache2'],
     notify  => Service['apache2'],
   }
@@ -52,7 +52,7 @@ node default {
 
   exec { 'enable-vhost':
     command => '/usr/sbin/a2ensite tomcat-proxy.conf && /usr/sbin/a2dissite 000-default.conf',
-    creates => /etc/apache2/sites-enabled/tomcat-proxy.conf,
+    creates => '/etc/apache2/sites-enabled/tomcat-proxy.conf',
     require => File['/etc/apache2/sites-available/tomcat-proxy.conf'],
     notify  => Service['apache2'],
   }
