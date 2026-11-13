@@ -1,0 +1,210 @@
+Here is a comprehensive, step-by-step lab guide designed for learners to understand how to transition from a standalone Puppet **manifest (`site.pp`)** to a modular, reusable **Puppet Module** using the professional Profile pattern.
+
+This use case sets up a multi-tier web application stack on Ubuntu: **Apache2** acting as a reverse proxy, **OpenJDK 17**, **Apache Tomcat** running a sample `.war` application, and **PHP** processing web requests.
+
+---
+
+# Part 1: The Monolithic Puppet Manifest (`site.pp`)
+
+*For beginners, writing everything in a single `site.pp` manifest is the best way to understand resource declarations, ordering, and service dependencies.*
+
+Create or update your manifest file on your Puppet target server at `/etc/puppetlabs/code/environments/production/manifests/site.pp`:
+
+1. **Write the Monolithic site.pp Manifest:**
+Add the following resource declarations to define packages, configuration files, and services in logical order:
+
+```puppet
+node default {
+  # 1. Update package list & install base utilities
+  exec { 'apt-update':
+    command => '/usr/bin/apt-get update',
+  }
+
+  # 2. Install Apache2, PHP, and Java OpenJDK 17
+  package { ['apache2', 'libapache2-mod-php', 'php', 'openjdk-17-jdk']:
+    ensure => installed,
+    require => Exec['apt-update'],
+  }
+
+  # 3. Enable Apache Proxy Modules for Reverse Proxy
+  exec { 'enable-proxy-modules':
+    command => '/usr/sbin/a2enmod proxy proxy_http headers',
+    creates => /etc/apache2/mods-enabled/proxy.load,
+    require => Package['apache2'],
+    notify  => Service['apache2'],
+  }
+
+  # 4. Configure Apache Virtual Host as Reverse Proxy to Tomcat (Port 8080)
+  file { '/etc/apache2/sites-available/tomcat-proxy.conf':
+    ensure  => file,
+    content => @(EOT),
+      <VirtualHost *:80>
+          ServerName localhost
+          DocumentRoot /var/www/html
+
+          # Proxy requests to Tomcat backend
+          ProxyPass /app http://localhost:8080/sample/
+          ProxyPassReverse /app http://localhost:8080/sample/
+
+          ErrorLog ${APACHE_LOG_DIR}/proxy_error.log
+          CustomLog ${APACHE_LOG_DIR}/proxy_access.log combined
+      </VirtualHost>
+      EOT
+    require => Package['apache2'],
+    notify  => Service['apache2'],
+  }
+
+  exec { 'enable-vhost':
+    command => '/usr/sbin/a2ensite tomcat-proxy.conf && /usr/sbin/a2dissite 000-default.conf',
+    creates => /etc/apache2/sites-enabled/tomcat-proxy.conf,
+    require => File['/etc/apache2/sites-available/tomcat-proxy.conf'],
+    notify  => Service['apache2'],
+  }
+
+  # 5. Manage Apache Service
+  service { 'apache2':
+    ensure     => running,
+    enable     => true,
+    hasrestart => true,
+  }
+
+  # 6. Install and Manage Tomcat Server
+  package { 'tomcat9':
+    ensure  => installed,
+    require => Package['openjdk-17-jdk'],
+  }
+
+  service { 'tomcat9':
+    ensure     => running,
+    enable     => true,
+    require    => Package['tomcat9'],
+  }
+}
+
+```
+
+*Verification:* Run `sudo puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp` to check syntax correctness.
+
+
+2. **Apply the Manifest Locally:**
+Test your manifest by applying it directly on the server:
+
+```bash
+sudo puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
+
+```
+
+*Verification:* Run `curl http://localhost` and `sudo systemctl status apache2 tomcat9` to confirm both services are active.
+
+
+---
+
+# Part 2: Refactoring into a Reusable Puppet Module (The Profile Pattern)
+
+As environments grow, keeping everything in `site.pp` becomes unmaintainable. Professional Puppet environments use **Modules** with classes separated by separation of concerns.
+
+Here is how learners transition the above manifest into a modular structure: `site-modules/profile/`.
+
+1. **Create the Module Directory Structure:**
+Navigate to your control repository modules directory and create the module skeleton:
+
+```bash
+cd /etc/puppetlabs/code/environments/production/
+mkdir -p site-modules/profile/manifests site-modules/profile/templates
+
+```
+
+*Verification:* Run `tree site-modules/profile` to verify the directory structure.
+
+
+2. **Create the Webserver Profile Class (Apache & Reverse Proxy):**
+Create `site-modules/profile/manifests/web.pp` to handle Apache, PHP, and Virtual Host configuration:
+
+```puppet
+class profile::web {
+  package { ['apache2', 'libapache2-mod-php', 'php']:
+    ensure => installed,
+  }
+
+  exec { 'enable-proxy-modules':
+    command => '/usr/sbin/a2enmod proxy proxy_http headers',
+    creates => /etc/apache2/mods-enabled/proxy.load,
+    require => Package['apache2'],
+    notify  => Service['apache2'],
+  }
+
+  file { '/etc/apache2/sites-available/tomcat-proxy.conf':
+    ensure  => file,
+    content => @(EOT),
+      <VirtualHost *:80>
+          ServerName localhost
+          ProxyPass /app http://localhost:8080/sample/
+          ProxyPassReverse /app http://localhost:8080/sample/
+      </VirtualHost>
+      EOT
+    require => Package['apache2'],
+    notify  => Service['apache2'],
+  }
+
+  exec { 'enable-vhost':
+    command => '/usr/sbin/a2ensite tomcat-proxy.conf && /usr/sbin/a2dissite 000-default.conf',
+    creates => /etc/apache2/sites-enabled/tomcat-proxy.conf,
+    require => File['/etc/apache2/sites-available/tomcat-proxy.conf'],
+    notify  => Service['apache2'],
+  }
+
+  service { 'apache2':
+    ensure     => running,
+    enable     => true,
+  }
+}
+
+```
+
+*Verification:* Confirm the file is saved correctly in `site-modules/profile/manifests/web.pp`.
+
+
+3. **Create the Appserver Profile Class (Java & Tomcat):**
+Create `site-modules/profile/manifests/app.pp` to manage Java and Tomcat:
+
+```puppet
+class profile::app {
+  package { ['openjdk-17-jdk', 'tomcat9', 'tomcat9-admin']:
+    ensure => installed,
+  }
+
+  service { 'tomcat9':
+    ensure     => running,
+    enable     => true,
+    require    => Package['tomcat9'],
+  }
+}
+
+```
+
+*Verification:* Confirm the file is saved in `site-modules/profile/manifests/app.pp`.
+
+
+4. **Update site.pp to Include the Profiles:**
+Rewrite your top-level `manifests/site.pp` to simply include the modular profiles:
+
+```puppet
+node default {
+  include profile::web
+  include profile::app
+}
+
+```
+
+*Verification:* Run `sudo puppet apply manifests/site.pp` to test module loading and resource enforcement.
+
+
+---
+
+# Part 3: Integrating with Jenkins Pipeline & r10k
+
+To tie this module into your automated Azure lab pipeline:
+
+1. **Commit and Push:** Commit your new `site-modules/` directory and updated `site.pp` to your GitHub control repository.
+2. **Trigger r10k via Jenkins:** When your Jenkins job runs `sudo r10k deploy environment production -p --verbose`, r10k automatically syncs `site-modules/` into Puppet's environment path.
+3. **Puppet Apply:** The Jenkins pipeline executes `sudo puppet apply manifests/site.pp`, which cleanly orchestrates Apache, PHP, Java, Tomcat, and your reverse proxy vhost in seconds.
