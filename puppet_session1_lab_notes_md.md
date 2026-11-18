@@ -262,3 +262,37 @@ apt-get purge --auto-remove nginx nginx-common nginx-core
 apt-get remove nginx
 systemctl stop nginx
  echo "Tampered data" > /var/www/html/index.html
+
+
+
+ TO SWITCH BETWEEN MASTER AND AGENT - SSH
+ ========================================
+
+ You can do at user level or ROOT level, but root is not recommended.
+ I am illustrating at user level so that you can SSH between these 2 machines.
+
+ username eg: - azureuser
+ ============================
+
+ Pre-requisites
+ ===============
+ Both machines should have the same username in this case azureuser.
+ Please note azureuser by default it will exist on the machines.
+
+ $ id azureuser //to verify you are in the machine with azureuser.
+ $ cd ~/.ssh/
+ $ ssh-keygen -t rsa //To create the keys if not exist.
+//There will be two keys id_rsa & id_rsa.pub - if already exist no need to create.
+ $ cat id_rsa.pub 
+ //Copy the output
+
+ Go to Target machine
+ $ su azureuser //if not logged in using azureuser
+ $ cd ~/.ssh
+ $ vi authorized_keys
+ //Append the copied output from FIRST machine and save the file.
+
+ Now Go back to 1st Machine and try ssh to this machine 
+ eg:- 
+ $ ssh puppet-agent
+ //you should be able to login to this machine.
