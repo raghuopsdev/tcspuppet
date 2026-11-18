@@ -153,3 +153,9 @@ ENV PATH="/opt/puppetlabs/bin:/opt/puppetlabs/server/bin:$PATH"
 CMD ["puppet", "agent", "--verbose", "--onetime", "--no-daemonize", "--server", "puppet"]
 EOF
 https://hub.docker.com/r/puppet/puppet-agent
+
+
+//Keys pushing
+
+ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
+az vm user update \ --resource-group <ResourceGroupName> \ --name <VMName> \ --username <YourUsername> \ --ssh-key-value ~/.ssh/id_rsa.pub
