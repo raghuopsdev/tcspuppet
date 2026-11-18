@@ -296,3 +296,8 @@ systemctl stop nginx
  eg:- 
  $ ssh puppet-agent
  //you should be able to login to this machine.
+
+ Remember if you need sudoer permission and passwordless authentication use the following command in respective machine.
+ 
+ $ echo "deploy-user ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/azureuser
+ //The above gives azureuser permission to execute command using sudo without switching to ROOT.
