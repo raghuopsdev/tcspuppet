@@ -1,0 +1,41 @@
+Here are the ready-to-run Azure CLI commands for resource group rg-puppet-training and VM puppet-server, allowing inbound traffic on <YourPort> from source IPs 10.0.0.4 and 10.0.0.5.
+
+
+//Resolve the NSG Attached to puppet-server
+//Run this command to find the Network Security Group name on puppet-server inside rg-puppet-training:
+
+
+NIC_ID=$(az vm show --resource-group rg-puppet-training --name puppet-server --query "networkProfile.networkInterfaces[0].id" -o tsv)
+NSG_NAME=$(az network nic show --ids "$NIC_ID" --query "networkSecurityGroup.id" -o tsv | awk -F'/' '{print $NF}')
+echo "NSG Name: $NSG_NAME"
+
+//Verification: Confirm $NSG_NAME outputs a valid NSG name. If it is empty, check the subnet NSG instead.
+
+//Create the Inbound NSG Rule
+//Replace <YourPort> with your port number (such as 8140 or 9090), then run:
+
+az network nsg rule create \
+  --resource-group rg-puppet-training \
+  --nsg-name "$NSG_NAME" \
+  --name Allow-Puppet-Sources-Port \
+  --priority 1050 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes 10.0.0.4 10.0.0.5 \
+  --source-port-ranges '*' \
+  --destination-address-prefixes '*' \
+  --destination-port-ranges 8140
+  
+//Verification: Check that the returned JSON shows "provisioningState": "Succeeded", "access": "Allow", and "sourceAddressPrefixes": ["10.0.0.4", "10.0.0.5"].
+
+//Verify the Rule in the NSG
+//List the inbound rules to confirm the rule is active:
+
+az network nsg rule list \
+  --resource-group rg-puppet-training \
+  --nsg-name "$NSG_NAME" \
+  --query "[?direction=='Inbound'].{Name:name, Priority:priority, Source:sourceAddressPrefixes, Port:destinationPortRanges, Access:access}" \
+  --output table
+
+// Verification: Allow-Puppet-Sources-Port appears with 10.0.0.4 and 10.0.0.5 under Source and your target port under Port.
