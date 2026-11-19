@@ -45,3 +45,15 @@ cd /opt/azagent/agent
 sudo ./svc.sh install azagent
 sudo ./svc.sh start
 sudo ./svc.sh status
+
+
+
+======
+export AZURE_DEVOPS_EXT_PAT="<your-pat>"
+az devops invoke \
+  --area distributedtask \
+  --resource pools \
+  --api-version 7.1 \
+  --route-parameters \
+  --in-file pool.json \
+  --org https://dev.azure.com/<your-organization>
