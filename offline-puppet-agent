@@ -1,0 +1,47 @@
+Setup Notes: Offline / Unreachable PE Server Preparation
+Goal: Install the Puppet agent package, pre-populate /etc/puppetlabs/puppet/puppet.conf with your intended target server and certname, and enable the service—without running puppet agent -t against the server yet.
+
+Why puppet agent -t is skipped now: A full run requires resolving and reaching TCP port 8140 on the PE primary server and signing the CSR before fetching a catalog.
+
+1
+Add the Puppet Repository and Install puppet-agent
+Run these commands on your Azure VM to add the Puppet release repository for your Ubuntu release and install puppet-agent:
+
+Bash
+sudo apt-get update
+sudo apt-get install -y curl ca-certificates lsb-release
+curl -fsSL "https://apt.puppet.com/puppet8-release-$(lsb_release -cs).deb" -o /tmp/puppet-release.deb
+sudo dpkg -i /tmp/puppet-release.deb
+sudo apt-get update
+sudo apt-get install -y puppet-agent
+Verification: /opt/puppetlabs/bin/puppet --version prints the installed version number.
+
+2
+Write Pre-Configured puppet.conf
+Populate /etc/puppetlabs/puppet/puppet.conf with placeholder or planned values for server, certname, and environment so you only need to adjust values if plans change:
+
+Bash
+sudo tee /etc/puppetlabs/puppet/puppet.conf >/dev/null <<'EOF'
+[main]
+server = <onprem-pe-server-fqdn>
+certname = <agent-certname>
+environment = production
+EOF
+Verification: sudo /opt/puppetlabs/bin/puppet config print server certname environment outputs the values you wrote into puppet.conf.
+
+3
+Enable the puppet Service Without Triggering a Server Run
+Enable the puppet service so it is set to start at boot, while leaving puppet agent -t until network access to the on-prem PE server is ready:
+
+Bash
+sudo /opt/puppetlabs/puppet/bin/puppet resource service puppet enable=true
+Verification: systemctl is-enabled puppet outputs enabled (or systemctl status puppet shows it inactive/waiting without attempting a remote catalog fetch).
+
+Quick Reference Cheatsheet (For Later When Server Is Reachable)
+Config file path: /etc/puppetlabs/puppet/puppet.conf
+
+Check effective config: sudo /opt/puppetlabs/bin/puppet config print all
+
+Send CSR / run agent: sudo /opt/puppetlabs/bin/puppet agent -t (run on the agent after connectivity and CSR signing are in place)
+
+For extra reference on puppet.conf and agent installation on Ubuntu, you can search YouTube for "puppet.conf configuration example Ubuntu" or "install puppet-agent Ubuntu".
