@@ -57,3 +57,10 @@ az devops invoke \
   --route-parameters \
   --in-file pool.json \
   --org https://dev.azure.com/<your-organization>
+
+//pool.json
+{
+  "name": "linux-lab-pool",
+  "autoProvision": true,
+  "autoUpdate": true
+}
