@@ -64,3 +64,10 @@ az devops invoke \
   "autoProvision": true,
   "autoUpdate": true
 }
+
+rm -f agent.tar.gz
+AGENT_URL=$(curl -sL https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | \
+  jq -r '.assets[] | select(.name | test("^vsts-agent-linux-x64-.*\\.tar\\.gz$")) | .browser_download_url')
+echo "URL: $AGENT_URL"
+curl -fSL -o agent.tar.gz "$AGENT_URL"
+file agent.tar.gz
