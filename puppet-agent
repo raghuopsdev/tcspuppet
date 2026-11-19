@@ -1,0 +1,58 @@
+//Puppet Agent Installation
+
+To install the Puppet Enterprise (PE) agent on a target node and configure connectivity to your Puppet Enterprise primary (master) server, run the official PE agent installer from the primary server's package endpoint, submit the Certificate Signing Request (CSR), sign the certificate on the primary server, and run a test catalog apply.
+
+1
+Verify Name Resolution and Port 8140 Connectivity on the Agent Node
+SSH into the target agent node and confirm it can resolve <puppet-primary-fqdn> and reach TCP port 8140 (and 8142 if using PCP/orchestrator) on the Puppet Enterprise primary server:
+
+Bash
+getent hosts <puppet-primary-fqdn>
+nc -zv <puppet-primary-fqdn> 8140
+Verification: getent hosts returns the primary server's IP address, and nc -zv reports succeeded or open on port 8140.
+
+2
+Download and Run the Puppet Enterprise Agent Installer
+From the agent node, pull and execute the install.bash script served by your PE primary server so the agent is installed and configured with the primary server's hostname and production environment:
+
+Bash
+curl -k https://<puppet-primary-fqdn>:8140/packages/current/install.bash | sudo bash -s -- \
+  main:certname=$(hostname -f) \
+  main:server=<puppet-primary-fqdn> \
+  agent:environment=production
+(If hostname -f is short or you prefer an explicit name, replace $(hostname -f) with your desired agent certname.)
+Verification: The installer finishes without errors and /opt/puppetlabs/bin/puppet --version prints the installed Puppet agent version.
+
+3
+Start the Puppet Service and Submit the CSR
+Ensure the puppet agent service is running and trigger a test run to generate and send the Certificate Signing Request (CSR) to the primary server:
+
+Bash
+sudo /opt/puppetlabs/puppet/bin/puppet resource service puppet ensure=running enable=true
+sudo /opt/puppetlabs/bin/puppet agent -t
+Verification: puppet agent -t exits cleanly while stating that it submitted a certificate signing request to <puppet-primary-fqdn>.
+
+4
+Approve and Sign the Agent Certificate on the Puppet Enterprise Primary Server
+On the PE primary server, list pending CSRs and sign the agent's certificate (or accept it under Node requests in the PE Console):
+
+Bash
+sudo /opt/puppetlabs/bin/puppetserver ca list
+sudo /opt/puppetlabs/bin/puppetserver ca sign --certname <agent-certname>
+Verification: Running sudo /opt/puppetlabs/bin/puppetserver ca list --all shows <agent-certname> under signed certificates rather than pending requests.
+
+5
+Complete Initial Catalog Run and Verify Connectivity
+Back on the agent node, run puppet agent -t once more to retrieve its signed certificate, fetch its catalog from the primary server, and apply configuration:
+
+Bash
+sudo /opt/puppetlabs/bin/puppet agent -t
+sudo /opt/puppetlabs/bin/puppet config print server certname environment
+Verification: puppet agent -t completes without SSL or connection errors, puppet config print shows the expected server, certname, and environment, and the node appears under Nodes in the PE Console.
+
+Quick Troubleshooting Tips
+SSL / hostname mismatch: If puppet agent -t fails with an SSL certificate hostname error, verify /etc/puppetlabs/puppet/puppet.conf on the agent has server = <puppet-primary-fqdn> matching the primary server's CA/certificate name (and that DNS or /etc/hosts resolves it cleanly).
+
+Service vs. one-shot run: Keeping the puppet service enabled ensures periodic background runs, while sudo /opt/puppetlabs/bin/puppet agent -t runs immediately on demand.
+
+For a walkthrough of installing and connecting a Puppet Enterprise agent, you can search YouTube for "Puppet Enterprise install agent sign certificate" or "Puppet Enterprise agent master connectivity".
