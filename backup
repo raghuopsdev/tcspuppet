@@ -1,1 +1,5 @@
+//Check all the versions
+
+cat /etc/os-release hostname -f sudo /opt/puppetlabs/bin/puppet --version sudo /opt/puppetlabs/bin/puppet agent --configprint server sudo /opt/puppetlabs/bin/puppet infrastructure status
+
 
