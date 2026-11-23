@@ -2,3 +2,4 @@
 
 cat /etc/os-release && hostname -f && sudo /opt/puppetlabs/bin/puppet --version && sudo /opt/puppetlabs/bin/puppet agent --configprint server && sudo /opt/puppetlabs/bin/puppet infrastructure status
 
+sudo puppet-backup create --dir=/var/backups/pe
