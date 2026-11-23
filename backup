@@ -5,3 +5,4 @@ cat /etc/os-release && hostname -f && sudo /opt/puppetlabs/bin/puppet --version 
 sudo puppet-backup create --dir=/var/backups/pe
 sudo /opt/puppetlabs/bin/puppet-backup create --dir=/var/backups/pe ; cat /var/backups/pe/report.txt
 sudo mkdir -p /var/backups/pe && sudo /opt/puppetlabs/bin/puppet-backup create --dir=/var/backups/pe --verbose
+sudo tail -n 100 /var/log/puppetlabs/puppetserver/puppetserver.log /var/log/messages /var/log/syslog 2>/dev/null | grep -iE "ssl|openssl|cert|error|backup"
