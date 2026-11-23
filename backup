@@ -6,3 +6,16 @@ sudo puppet-backup create --dir=/var/backups/pe
 sudo /opt/puppetlabs/bin/puppet-backup create --dir=/var/backups/pe ; cat /var/backups/pe/report.txt
 sudo mkdir -p /var/backups/pe && sudo /opt/puppetlabs/bin/puppet-backup create --dir=/var/backups/pe --verbose
 sudo tail -n 100 /var/log/puppetlabs/puppetserver/puppetserver.log /var/log/messages /var/log/syslog 2>/dev/null | grep -iE "ssl|openssl|cert|error|backup"
+
+
+
+
+//Inspect the SSL certificate used on port 8081
+CERTNAME=$(sudo /opt/puppetlabs/bin/puppet config print certname)
+sudo openssl s_client -connect "${CERTNAME}:8081" \
+  -cert "/etc/puppetlabs/puppet/ssl/certs/${CERTNAME}.pem" \
+  -key "/etc/puppetlabs/puppet/ssl/private_keys/${CERTNAME}.pem" \
+  -CAfile "/etc/puppetlabs/puppet/ssl/certs/ca.pem" </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName
+
+//Check if 8081 if anything running
+sudo ss -tulpn | grep 8081 || sudo netstat -tlpn 2>/dev/null | grep 8081
