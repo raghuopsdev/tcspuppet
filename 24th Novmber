@@ -1,0 +1,168 @@
+root@puppet-primary:/etc/puppetlabs/code/environments/production/modules# history
+    1  ifconfig
+    2  curl ifconfig.me
+    3  az vm open-port --port 443 --resource-group rg-puppet-training --name puppet-primary --priority 1001
+    4  exit
+    5  clear
+    6  sudo hostnamectl set-hostname puppet-primary.lab.local
+    7  hostname
+    8  echo "$(hostname -I | awk '{print $1}') puppet-primary.lab.local puppet-primary" | sudo tee -a /etc/hosts
+    9  cat /etc/hosts
+   10  hostname -I
+   11  mkdir pe
+   12  cd pe
+   13  wget https://pm.puppetlabs.com/puppet-enterprise/2026.0.2/puppet-enterprise-2026.0.2-ubuntu-24.04-amd64.tar.gz
+   14  ls -lrth
+   15  tar -xzvf puppet-enterprise-2026.0.2-ubuntu-24.04-amd64.tar.gz 
+   16  ls -lrth
+   17  cd puppet-enterprise-2026.0.2-ubuntu-24.04-amd64
+   18  ls
+   19  ./puppet-enterprise-installer 
+   20  clear
+   21  ps -ef | grep puppet
+   22  ps -ef | grep pe-puppet
+   23  systemctl status puppetserver
+   24  clear
+   25  sudo ss -tulpn | grep -E ':443|:4433|:8140'
+   26  curl -kI https://127.0.0.1
+   27  curl -kIL https://127.0.0.1/puppet-console
+   28  /opt/puppetlabs/bin/puppet infrastructure status
+   29  systemctl status pe-console-services pe-nginx --no-pager
+   30  curl -kI "https://$(hostname -f)/"
+   31  clear
+   32  az network nsg rule list --nsg-name puppet-server --resource-group rg-puppet-training --query "[?direction=='Inbound'].{Name:name, Priority:priority, Access:access, Port:destinationPortRange, Source:sourceAddressPrefix}" -o table
+   33  sudo /opt/puppetlabs/bin/puppet infrastructure console_password --password 'Abcd@123456789'
+   34  pdk --version
+   35  whereis pdk
+   36  which pdk
+   37  clear
+   38  cd /opt/puppetlabs/
+   39  ls pdk
+   40  wget https://apt-puppetcore.puppet.com/public/puppet8-release-noble.deb
+   41  dpkg -i puppet8-release-noble.deb
+   42  pdk --version
+   43  cd pdk
+   44  clear
+   45  cat /etc/os-release 
+   46  clear
+   47  cd pdk
+   48  dpkg -l | grep puppet8-release
+   49  vi /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   50  vi /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   51  cat /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf 
+   52  sudo apt-get update
+   53  sudo apt-get install -y pdk
+   54  sudo chmod 600 /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   55  sudo apt-get update
+   56  sudo apt-get install -y pdk
+   57  ls -la /etc/apt/auth.conf.d/
+   58  sudo grep -v '^#' /etc/apt/auth.conf.d/*
+   59  cat <<'EOF' | sudo tee /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   60  machine apt-puppetcore.puppet.com
+   61  login forge-key
+   62  password <YOUR_FORGE_API_KEY>
+   63  EOF
+   64  sudo chown root:_apt /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   65  sudo chmod 640 /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   66  cat /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf 
+   67  vi /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   68  sudo apt-get install -y pdk
+   69  apt-get update
+   70  sudo apt-get install -y pdk
+   71  ifconfig
+   72  curl ifconfig.me
+   73  vi /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+   74  apt-get install -y pdk
+   75  pdk --version
+   76  puppet --version
+   77  pwd
+   78  clear
+   79  mkdir -p ~/puppet-labs && cd ~/puppet-labs
+   80  pwd
+   81  clear
+   82  pdk new module nginx_app --skip-interview
+   83  pwd
+   84  ll
+   85  ls
+   86  clear
+   87  tree nginx_app/
+   88  apt install tree
+   89  clear
+   90  tree nginx_app/
+   91  clear
+   92  ll
+   93  cd nginx_app/
+   94  ll
+   95  cat metadata.json 
+   96  clear
+   97  ll
+   98  cd manifests/
+   99  ll
+  100  cd ../files/
+  101  clear
+  102  ll
+  103  vi index.html
+  104  cd ../templates/
+  105  ll
+  106  vi vhost.conf.epp
+  107  cd ../data/
+  108  clear
+  109  ll
+  110  vi common.yaml 
+  111  cd ..
+  112  vi hiera.yaml 
+  113  cd data/
+  114  vi common.yaml 
+  115  pdk new class nginx_app
+  116  cat /root/puppet-labs/nginx_app/spec/classes/nginx_app_spec.rb
+  117  pdk new class nginx_app::install
+  118  cat pdk new class nginx_app::install
+  119  cat /root/puppet-labs/nginx_app/spec/classes/install_spec.rb
+  120  pdk new class nginx_app::config
+  121  pdk new class nginx_app::service
+  122  cd ../manifests/
+  123  clear
+  124  ll
+  125  vi init.pp 
+  126  clear
+  127  ll
+  128  cd ../
+  129  ll
+  130  cd /root/puppet-labs/
+  131  ll
+  132  cd nginx_app/
+  133  cler
+  134  pdk validate -a
+  135  clear
+  136  lll
+  137  ll
+  138  cd manifests/
+  139  vi init.pp 
+  140  ll
+  141  cat config.pp 
+  142  cat service.pp 
+  143  ll
+  144  cat vhost.pp 
+  145  cd ../
+  146  ls
+  147  cd spec/
+  148  ll
+  149  cd classes/
+  150  ll
+  151  cat nginx_app_spec.rb 
+  152  ll
+  153  pdk test unit
+  154  puppet apply --noop --modulepath=~/puppet-labs ~/puppetlabs/
+  155  nginx_app/examples/init.pp
+  156  puppet apply --noop --modulepath=~/puppet-labs/ ~/puppet-labs/nginx_app/examples/init.pp
+  157  puppet apply --noop --modulepath=~/puppet-labs/ ~/puppet-labs/nginx_app/manifests/init.pp
+  158  puppet module search stdlib
+  159  pupet help module
+  160  puppet help module
+  161  puppet module install puppetlabs-stdlib --version 10.1.1
+  162  cd /etc/puppetlabs/code/environments/production/modules/
+  163  ll
+  164  tree stdlib/
+  165  clear
+  166  vi /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+  167  history
