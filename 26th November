@@ -1,0 +1,164 @@
+Opensource installation
+=================================================================
+
+    1  sudo hostnamectl set-hostname openvox-server.internal
+    2  echo "127.0.0.1 openvox-server.internal openvox-server puppet" | sudo tee -a /etc/hosts
+    3  sudo apt update && sudo apt install -y wget
+    4  wget https://apt.voxpupuli.org/openvox9-release-ubuntu24.04.deb
+    5  sudo dpkg -i openvox9-release-ubuntu24.04.deb
+    6  sudo apt update
+    7  sudo apt install -y openvox-server
+    8  clear
+    9  sudo tee /etc/puppetlabs/puppet/puppet.conf >/dev/null <<'EOF'
+[main]
+certname = openvox-server.internal
+server = openvox-server.internal
+EOF
+
+   10  sudo /opt/puppetlabs/bin/puppetserver ca setup
+   11  sudo systemctl enable --now puppetserver
+   12  sudo /opt/puppetlabs/bin/puppet agent -t
+
+Hiera Setup
+=================
+
+
+sudo /opt/puppetlabs/puppet/bin/gem install hiera-eyaml r10k
+sudo /opt/puppetlabs/bin/puppetserver gem install hiera-eyaml
+
+
+
+sudo mkdir -p /etc/puppetlabs/puppet/keys
+   19  cd /etc/puppetlabs/puppet/keys
+   20  /opt/puppetlabs/puppet/bin/eyaml createkeys
+   21  sudo chown -R puppet:puppet /etc/puppetlabs/puppet/keys
+   22  sudo chmod 0700 /etc/puppetlabs/puppet/keys
+   23  sudo chmod 0600 /etc/puppetlabs/puppet/keys/private_key.pkcs7.pem
+   24  sudo chmod 0644 /etc/puppetlabs/puppet/keys/public_key.pkcs7.pem
+
+
+/opt/puppetlabs/puppet/bin/eyaml encrypt   --pkcs7-public-key=/etc/puppetlabs/puppet/keys/public_key.pkcs7.pem   --pkcs7-private-key=/etc/puppetlabs/puppet/keys/private_key.pkcs7.pem   -s 'SuperSecretDbPass!2026'
+
+ENC[PKCS7,MIIBiQYJKoZIhvcNAQcDoIIBejCCAXYCAQAxggEhMIIBHQIBADAFMAACAQAwDQYJKoZIhvcNAQEBBQAEggEAYh9ZTlQ2VcLhFyHMw1NplLVsMiiKU9M7n/CO01WcRwU+chdBewebeLEEyzh7AVAzsPlDTCC9tW2IareJatzYowurdXxJNWHniUCYnomx0mkc6tAoVi7p0yilxWJPFRW1Pi27Qbm9deJk6HvDkNR9I+uSfr3RqmzYu98OVZNDA9E+5bMFHwId9yM90u3h859uGTfgrfkcxEMm3jxYKgoFGmQFxC3kDBbQa8uaAsRGcepNkoKjt1MfDVU8/G+8AxpLyVuikJkhmegpxgLMubK3KtWRlOrpdH3N8GyEPxa0mcRIlJ2VhBIpzLcEEaTlScQFu7CWi9krC5jM/k+JLxCH9TBMBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBACRdJIpP/OMsIxA+WbC19OgCC4cE9Di5Gil8hT5KpnP5dew85q32del7lJB56kIbLDAg==]
+
+
+
+
+/opt/puppetlabs/bin/puppet lookup profile::app::db_password --explain
+   63  cp hiera.yaml /etc/puppetlabs/puppet
+   64  cp common.yaml /etc/puppetlabs/code/environments/production/data/
+   65  /opt/puppetlabs/bin/puppet lookup profile::app::db_password --explain
+   66  clear
+   67  /opt/puppetlabs/bin/puppet lookup profile::app::db_password --explain
+   68  ls -la /etc/puppetlabs/code/environments/production/
+   69  ls -la /etc/puppetlabs/code/environments/production/data/ 2>/dev/null || true
+   70  ls -la /etc/puppetlabs/code/environments/production/
+   71  ls -la /etc/puppetlabs/code/environments/production/data/
+   72  cat /etc/puppetlabs/code/environments/production/data/common.yaml 
+   73  mkdir -p /etc/puppetlabs/puppet/data
+   74  cat <<'EOF' > /etc/puppetlabs/puppet/data/common.eyaml
+---
+profile::app::db_user: 'orders_app'
+profile::app::db_password: ENC[PKCS7,YOUR_ENCRYPTED_STRING_HERE]
+EOF
+
+   75  chown -R puppet:puppet /etc/puppetlabs/puppet/data
+   76  chmod 0750 /etc/puppetlabs/puppet/data
+   77  chmod 0640 /etc/puppetlabs/puppet/data/common.eyaml
+   78  vi /etc/puppetlabs/puppet/data/common.eyaml 
+   79  /opt/puppetlabs/bin/puppet lookup profile::app::db_password --environment production --node openvox-server.internal --explain
+   80  hostname
+   81  ls -la /opt/puppetlabs/puppet/cache/yaml/facts/ 2>/dev/null || true
+   82  /opt/puppetlabs/bin/puppet agent -t
+   83  ls -la /opt/puppetlabs/bin/puppet agent -t
+   84  /opt/puppetlabs/bin/puppet lookup profile::app::db_password --environment production --node openvox-server.internal --explain
+
+
+
+
+
+  mkdir -p /opt/puppetlabs/puppet/cache/yaml/facts
+  cat <<'EOF' > /opt/puppetlabs/puppet/cache/yaml/facts/openvox-server.internal.yaml --- !ruby/object:Puppet::Node::Facts
+  name: openvox-server.internal
+  values:
+  os:
+    family: Debian
+    name: Ubuntu
+    release:
+      major: '24.04'
+      full: '24.04'
+  EOF
+
+
+ /opt/puppetlabs/bin/puppet lookup profile::app::db_password --environment production --node openvox-server.internal --explain
+
+
+
+
+109  git init
+  110  ll
+  111  git add hiera.yaml data/common.eyaml 
+  112  git status
+  113  git commit -a "Add Hiera eyaml DB secret and r10k control config"
+  114  git commit -m "Add Hiera eyaml DB secret and r10k control config"
+  115  git status
+  116  git remote -v
+  117  git push origin production
+  118  git remote add origin https://github.com/raghuopsdev/tcspuppet.git
+  119  git remote -v
+  120  git push -u origin production
+  121  git push origin production
+  122  git remote -v
+  123  git branch
+  124  git branch production
+  125  git checkout production
+  126  git ls-files
+  127  git push origin production
+  128  git status
+  129  ls -l
+  130  git add hiera.yaml 
+  131  git add data/common.eyaml 
+  132  git status
+  133  git commit -m "Test for Hiera"
+  134  git push origin production
+  135  git remote add origin https://github.com/raghuopsdev/tcs-hiera.git
+  136  git remote --help
+  137  git remote remove origin
+  138  git remote -v
+  139  git remote add origin https://github.com/raghuopsdev/tcs-hiera.git
+  140  git remote -v
+  141  git pull origin main
+  142  git commit hiera.yaml data/common.eyaml 
+  143  git add hiera.yaml data/common.eyaml 
+  144  git stash
+  145  git status
+  146  git commit -m "Test for Hiera"
+  147  git ls-files
+  148  git push origin main
+  149  clear
+  150  git branch
+  151  git push origin production
+  152  dpkg -l r10k
+  153  dpkg-query -l r10k
+  154  apt-get install r10k
+  155  clear
+  156  whereis r10k
+  157  r10k --version
+  158  r10k
+  159  r10k version
+  160  mkdir -p /etc/puppetlabs/r10k/r10.yaml
+  161  mkdir -p /etc/puppetlabs/r10k/
+  162  cd /etc/puppetlabs/r10k/
+  163  ls -l
+  164  rmdir r10.yaml/
+  165  vi r10.yaml
+  166  ls /opt/puppetlabs/r10k/cache
+  167  mkdir -p /opt/puppetlabs/r10k/cache
+  168  vi r10.yaml 
+  169  sudo r10k deploy environment production --puppetfile --verbose
+  170  sudo /opt/puppetlabs/bin/puppet agent -t
+
+
+
+
+
